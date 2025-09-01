@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  # === Keycloak (auth) ===
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.2
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8089:8080" # admin console & OIDC endpoints (host:8089)
+    networks:
+      - backend
+
+  # === Mongo for user-service ===
+  mongo-user:
+    image: mongo:7
+    ports:
+      - "27017:27017" # exposed for dev/test; can remove in prod
+    networks:
+      - backend
+    volumes:
+      - mongo_user_data:/data/db
+
+  # === Eureka discovery server ===
+  discovery-server:
+    build: ./discovery-server
+    ports:
+      - "8761:8761" # dev only; disable in prod
+    networks:
+      - backend
+
+  # === user-service (Mongo + Eureka client) ===
+  user-service:
+    build: ./user-service
+    depends_on:
+      - mongo-user
+      - discovery-server
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-user:27017/userdb
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      # Keycloak JWKS endpoint (realm = superapp)
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8089/realms/superapp/protocol/openid-connect/certs
+    networks:
+      - backend
+
+  # === API Gateway (public entry) ===
+  api-gateway:
+    build: ./api-gateway
+    depends_on:
+      - discovery-server
+      - user-service
+      - keycloak
+    ports:
+      - "8080:8080" # only public-facing service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  mongo_user_data:
