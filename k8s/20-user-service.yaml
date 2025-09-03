@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-secrets
+  namespace: demo
+type: Opaque
+stringData:
+  # include the DB name in the URI so Spring can infer it
+  MONGO_URI: mongodb://root:secret@mongodb.demo.svc.cluster.local:27017/userdb?authSource=admin
+  KEYCLOAK_URL: http://auth.local
+  KEYCLOAK_ADMIN_USER: admin
+  KEYCLOAK_ADMIN_PASS: admin
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: user-service }
+  template:
+    metadata:
+      labels: { app: user-service }
+    spec:
+      containers:
+        - name: app
+          image: user-service:local # change if you pushed to a registry
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef: { name: user-service-secrets, key: MONGO_URI }
+            - name: KEYCLOAK_URL
+              valueFrom:
+                secretKeyRef: { name: user-service-secrets, key: KEYCLOAK_URL }
+            - name: KEYCLOAK_ADMIN_USER
+              valueFrom:
+                secretKeyRef: { name: user-service-secrets, key: KEYCLOAK_ADMIN_USER }
+            - name: KEYCLOAK_ADMIN_PASS
+              valueFrom:
+                secretKeyRef: { name: user-service-secrets, key: KEYCLOAK_ADMIN_PASS }
+          readinessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: demo
+spec:
+  selector: { app: user-service }
+  ports:
+    - port: 80
+      targetPort: 8080
