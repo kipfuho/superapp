@@ -14,14 +14,24 @@ services:
       - backend
 
   # === Mongo for user-service ===
-  mongo-user:
+  mongodb:
     image: mongo:7
     ports:
       - "27017:27017" # exposed for dev/test; can remove in prod
     networks:
       - backend
     volumes:
-      - mongo_user_data:/data/db
+      - mongodb_data:/data/
+
+      # === Mongo for user-service ===
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379" # exposed for dev/test; can remove in prod
+    networks:
+      - backend
+    volumes:
+      - redis_data:/data/
 
   # === Eureka discovery server ===
   discovery-server:
@@ -35,13 +45,14 @@ services:
   user-service:
     build: ./user-service
     depends_on:
-      - mongo-user
+      - mongodb
       - discovery-server
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-user:27017/userdb
+      MONGO_URI: mongodb://mongodb:27017
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
-      # Keycloak JWKS endpoint (realm = superapp)
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8089/realms/superapp/protocol/openid-connect/certs
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASS: admin
     networks:
       - backend
 
@@ -52,9 +63,12 @@ services:
       - discovery-server
       - user-service
       - keycloak
+      - redis
     ports:
       - "8080:8080" # only public-facing service
     environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
     networks:
       - backend
@@ -63,4 +77,5 @@ networks:
   backend:
 
 volumes:
-  mongo_user_data:
+  mongodb_data:
+  redis_data:
