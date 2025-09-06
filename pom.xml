@@ -18,6 +18,9 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>user-service</module>
+        <module>pos-order-system/cdp-service</module>
+        <module>pos-order-system/order-service</module>
+        <module>pos-order-system/inventory-service</module>
         <!-- add more services here -->
     </modules>
 
