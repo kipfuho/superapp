@@ -18,8 +18,13 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>user-service</module>
-        <module>pos-order-system/cdp-service</module>
         <module>pos-order-system/order-service</module>
+        <module>pos-order-system/menu-service</module>
+        <module>pos-order-system/payment-service</module>
+        <module>pos-order-system/promotion-service</module>
+        <module>pos-order-system/cdp-service</module>
+        <module>pos-order-system/analytic-service</module>
+        <module>pos-order-system/kitchen-service</module>
         <module>pos-order-system/inventory-service</module>
         <!-- add more services here -->
     </modules>
