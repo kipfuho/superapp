@@ -1,7 +1,8 @@
 package com.superapp.user_service.repo;
 
-import com.superapp.user_service.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.superapp.user_service.domain.User;
 
 import java.util.Optional;
 

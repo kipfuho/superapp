@@ -1,6 +1,6 @@
 package com.superapp.user_service.web;
 
-import com.superapp.user_service.entity.User;
+import com.superapp.user_service.domain.User;
 import com.superapp.user_service.keycloak.KeycloakAdminService;
 import com.superapp.user_service.repo.UserRepository;
 import org.springframework.http.HttpStatus;

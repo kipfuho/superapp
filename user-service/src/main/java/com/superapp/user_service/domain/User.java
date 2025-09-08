@@ -1,4 +1,4 @@
-package com.superapp.user_service.entity;
+package com.superapp.user_service.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
