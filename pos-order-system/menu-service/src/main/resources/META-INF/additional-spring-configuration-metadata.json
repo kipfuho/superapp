@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "aws.region",
+      "type": "java.lang.String",
+      "description": "AWS Region"
+    },
+    {
+      "name": "aws.s3.bucket",
+      "type": "java.lang.String",
+      "description": "AWS S3 Bucket Name"
+    },
+    {
+      "name": "aws.s3.url",
+      "type": "java.lang.String",
+      "description": "AWS S3 Public Base Url"
+    }
+  ]
+}

@@ -26,4 +26,5 @@ public class Dish {
     private boolean isActive = true;
     private java.util.List<String> tagIds;
     private int sort;
+    private java.util.List<ImageAsset> images;
 }
