@@ -27,7 +27,7 @@ public class ImageService {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
-    @Value("${aws.s3.publicBaseUrl}")
+    @Value("${aws.s3.url}")
     private String publicBase;
 
     public Map<String, String> createDishUploadUrl(String dishId, String contentType) {

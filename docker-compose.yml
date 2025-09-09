@@ -44,6 +44,8 @@ services:
   # === user-service (Mongo + Eureka client) ===
   user-service:
     build: ./user-service
+    ports:
+      - "8081:8081" # exposed for dev/test; can remove in prod
     depends_on:
       - mongodb
       - discovery-server
@@ -70,6 +72,23 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+    networks:
+      - backend
+
+  # === menu-service (Mongo + Eureka client) ===
+  menu-service:
+    build: ./pos-order-system/menu-service
+    ports:
+      - "8091:8091" # exposed for dev/test; can remove in prod
+    depends_on:
+      - mongodb
+      - discovery-server
+      - redis
+    environment:
+      MONGO_URI: mongodb://mongodb:27017
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     networks:
       - backend
 

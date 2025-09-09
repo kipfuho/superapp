@@ -33,6 +33,7 @@
         <java.version>17</java.version>
         <spring.boot.version>3.5.5</spring.boot.version>
         <spring-cloud.version>2025.0.0</spring-cloud.version>
+        <org.projectlombok.version>1.18.40</org.projectlombok.version>
     </properties>
 
     <dependencyManagement>
@@ -51,6 +52,13 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${org.projectlombok.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
