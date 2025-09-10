@@ -8,7 +8,6 @@ import com.superapp.menu_service.domain.Dish;
 import com.superapp.menu_service.domain.ImageAsset;
 import com.superapp.menu_service.repo.DishRepo;
 
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -16,6 +15,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -31,25 +31,52 @@ public class ImageService {
     private String publicBase;
 
     public Map<String, String> createDishUploadUrl(String dishId, String contentType) {
-        String ext = contentType != null && contentType.contains("png") ? ".png" : ".jpg";
-        String key = "pos-order-system/images/dishes/" + dishId + "/" + UUID.randomUUID() + ext;
+        // 1) Validate content type (images only)
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new IllegalArgumentException("Only image uploads are allowed (Content-Type must start with image/).");
+        }
 
+        // 2) Whitelist allowed image types (adjust as needed)
+        final Set<String> ALLOWED = Set.of(
+                "image/jpeg", // .jpg
+                "image/png", // .png
+                "image/webp" // .webp
+        // add "image/avif", "image/gif" if you want
+        );
+        if (!ALLOWED.contains(contentType)) {
+            throw new IllegalArgumentException("Unsupported image type: " + contentType);
+        }
+
+        // 3) Map content-type -> extension
+        final Map<String, String> EXT = Map.of(
+                "image/jpeg", ".jpg",
+                "image/png", ".png",
+                "image/webp", ".webp");
+        String ext = EXT.get(contentType);
+
+        // 4) Build key (UUID makes objects immutable -> safe to set long cache headers)
+        String key = "public/pos-order-system/images/dishes/" + dishId + "/" + UUID.randomUUID() + ext;
+
+        // 5) Build the signed PutObjectRequest (no ACL; bucket owner enforced)
         PutObjectRequest putReq = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
-                .contentType(contentType)
-                .acl(ObjectCannedACL.PUBLIC_READ) // or use private + CloudFront signed URLs
+                .contentType(contentType) // must match exactly on upload if present
+                // .cacheControl("public, max-age=31536000, immutable") // optional but great for CDN
+                // .contentDisposition("inline") // helps browsers render
                 .build();
 
-        var presign = PutObjectPresignRequest.builder()
+        PutObjectPresignRequest presign = PutObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofMinutes(10))
                 .putObjectRequest(putReq)
                 .build();
 
-        PresignedPutObjectRequest url = presigner.presignPutObject(presign);
+        PresignedPutObjectRequest p = presigner.presignPutObject(presign);
+
         return Map.of(
-                "uploadUrl", url.url().toString(),
+                "uploadUrl", p.url().toString(),
                 "key", key,
+                // Use your CloudFront domain or viewer URL here if you serve via CDN
                 "publicUrl", publicBase + "/" + key);
     }
 
