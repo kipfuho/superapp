@@ -9,13 +9,13 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.superapp.menu_service.domain.Dish;
 
 public interface DishRepo extends MongoRepository<Dish, String> {
-    List<Dish> findByBranchIdAndIsActiveOrderBySortAsc(String branchId, boolean isActive);
+    List<Dish> findByBranchIdAndActiveOrderBySortAsc(String branchId, boolean active);
 
-    List<Dish> findByBranchIdAndCategoryIdAndIsActiveOrderBySortAsc(String branchId, String categoryId,
-            boolean isActive);
+    List<Dish> findByBranchIdAndCategoryIdAndActiveOrderBySortAsc(String branchId, String categoryId,
+            boolean active);
 
-    Page<Dish> findByBranchIdAndIsActive(String branchId, boolean isActive, Pageable pageable);
+    Page<Dish> findByBranchIdAndActive(String branchId, boolean active, Pageable pageable);
 
-    Page<Dish> findByBranchIdAndCategoryIdAndIsActive(String branchId, String categoryId, boolean isActive,
+    Page<Dish> findByBranchIdAndCategoryIdAndActive(String branchId, String categoryId, boolean active,
             Pageable pageable);
 }

@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import com.superapp.menu_service.domain.MenuCategory;
 
 public interface MenuCategoryRepo extends MongoRepository<MenuCategory, String> {
-    List<MenuCategory> findByBranchIdAndIsActiveOrderBySortAsc(String branchId, boolean isActive);
+    List<MenuCategory> findByBranchIdAndActiveOrderBySortAsc(String branchId, boolean active);
 }

@@ -18,6 +18,6 @@ public class MenuCategory {
     private String name;
     @Indexed
     @Builder.Default
-    private boolean isActive = true;
+    private boolean active = true;
     private int sort;
 }

@@ -18,6 +18,6 @@ public class ModifierOption {
     private String name;
     private long priceDelta; // minor units
     @Builder.Default
-    private boolean isActive = true;
+    private boolean active = true;
     private int sort;
 }

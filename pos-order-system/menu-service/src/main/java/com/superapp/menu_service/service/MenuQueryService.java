@@ -31,13 +31,13 @@ public class MenuQueryService {
      */
     @Cacheable(value = "menuByBranch", key = "#branchId")
     public Map<String, Object> getBranchMenu(String branchId) {
-        var categories = categoryRepo.findByBranchIdAndIsActiveOrderBySortAsc(branchId, true);
-        var dishes = dishRepo.findByBranchIdAndIsActiveOrderBySortAsc(branchId, true);
+        var categories = categoryRepo.findByBranchIdAndActiveOrderBySortAsc(branchId, true);
+        var dishes = dishRepo.findByBranchIdAndActiveOrderBySortAsc(branchId, true);
         var groups = groupRepo.findByBranchIdOrderBySortAsc(branchId);
         var groupIds = groups.stream().map(ModifierGroup::getId).toList();
         var optionsByGroup = optionRepo.findAllById(groupIds).isEmpty() ? Map.of()
                 : groups.stream().collect(Collectors.toMap(ModifierGroup::getId,
-                        g -> optionRepo.findByGroupIdAndIsActiveOrderBySortAsc(g.getId(), true)));
+                        g -> optionRepo.findByGroupIdAndActiveOrderBySortAsc(g.getId(), true)));
 
         return Map.of("categories", categories, "dishes", dishes, "groups", groups, "optionsByGroup", optionsByGroup);
     }
@@ -54,8 +54,8 @@ public class MenuQueryService {
         var params = PageParams.of(page, size, sort, dir);
         var pageable = params.toPageable();
         Page<Dish> result = (categoryId == null || categoryId.isBlank())
-                ? dishRepo.findByBranchIdAndIsActive(branchId, true, pageable)
-                : dishRepo.findByBranchIdAndCategoryIdAndIsActive(branchId, categoryId, true, pageable);
+                ? dishRepo.findByBranchIdAndActive(branchId, true, pageable)
+                : dishRepo.findByBranchIdAndCategoryIdAndActive(branchId, categoryId, true, pageable);
         return Paged.fromPage(result, params.sortDescriptor());
     }
 }

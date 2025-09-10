@@ -23,7 +23,7 @@ public class Dish {
     private long basePrice; // in minor units (VND) to avoid FP issues
     private String taxRuleId;
     @Builder.Default
-    private boolean isActive = true;
+    private boolean active = true;
     private java.util.List<String> tagIds;
     private int sort;
     private java.util.List<ImageAsset> images;
