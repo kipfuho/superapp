@@ -8,4 +8,6 @@ import com.superapp.branch_service.domain.Brand;
 
 public interface BrandRepo extends MongoRepository<Brand, String> {
     Optional<Brand> findByCode(String code);
+
+    Boolean existsByCode(String code);
 }

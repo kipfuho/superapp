@@ -20,4 +20,6 @@ public class ModifierGroup {
     private int max;
     private boolean required;
     private int sort;
+    @Builder.Default
+    private boolean active = true;
 }

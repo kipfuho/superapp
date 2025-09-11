@@ -5,21 +5,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("modifier_options")
+@Document("positions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ModifierOption {
+public class BranchPosition {
     @Id
     private String id;
     @Indexed
-    private String branchId;
-    @Indexed
-    private String groupId;
-    private String name;
-    private long priceDelta; // minor units
+    private String branchId; // optional: null if global
+    private String name; // Waiter, Cashier, Chef, Manager
+    private java.util.Set<String> permissions; // e.g., "ORDER_VOID", "PAYMENT_REFUND"
     @Builder.Default
     private boolean active = true;
-    private int sort;
 }

@@ -20,4 +20,5 @@ public class Brand {
     @Indexed(unique = true)
     private String code;
     private String name;
+    private boolean active;
 }

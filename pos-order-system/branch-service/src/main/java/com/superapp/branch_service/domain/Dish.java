@@ -41,7 +41,7 @@ public class Dish {
         private String groupId; // ref to ModifierGroup
         private Integer min; // optional per-dish override
         private Integer max; // optional per-dish override
-        private Boolean required; // optional per-dish override
+        private boolean required; // optional per-dish override
         private Integer sort; // per-dish ordering
         private List<OptionOverride> optionOverrides; // e.g. per-dish price tweaks
     }

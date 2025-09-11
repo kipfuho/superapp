@@ -5,17 +5,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document("branches")
+@Document("table_areas")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Branch {
+public class TableArea {
     @Id
     private String id;
-    @Indexed(unique = true)
-    private String code;
+    @Indexed
+    private String branchId;
     private String name;
-    private String brandId;
-    private boolean active;
+    private int sort;
+    @Builder.Default
+    private boolean active = true;
 }
