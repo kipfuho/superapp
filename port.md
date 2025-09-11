@@ -7,7 +7,7 @@ redis: 6379
 
 pos-order-system
 order-service: 8090
-menu-service: 8091
+branch-service: 8091
 payment-service: 8092
 promotion-service: 8093
 cdp-service: 8094

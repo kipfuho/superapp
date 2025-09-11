@@ -19,7 +19,7 @@
         <module>api-gateway</module>
         <module>user-service</module>
         <module>pos-order-system/order-service</module>
-        <module>pos-order-system/menu-service</module>
+        <module>pos-order-system/branch-service</module>
         <module>pos-order-system/payment-service</module>
         <module>pos-order-system/promotion-service</module>
         <module>pos-order-system/cdp-service</module>

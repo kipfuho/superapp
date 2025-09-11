@@ -75,9 +75,9 @@ services:
     networks:
       - backend
 
-  # === menu-service (Mongo + Eureka client) ===
-  menu-service:
-    build: ./pos-order-system/menu-service
+  # === branch-service (Mongo + Eureka client) ===
+  branch-service:
+    build: ./pos-order-system/branch-service
     ports:
       - "8091:8091" # exposed for dev/test; can remove in prod
     depends_on:
