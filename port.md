@@ -14,3 +14,8 @@ cdp-service: 8094
 analytic-service: 8095
 kitchen-service: 8096
 inventory-service: 8097
+
+ticket-pro
+event-service: 8100
+booking-service: 8101
+search-service: 8102

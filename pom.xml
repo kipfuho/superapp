@@ -26,6 +26,9 @@
         <module>pos-order-system/analytic-service</module>
         <module>pos-order-system/kitchen-service</module>
         <module>pos-order-system/inventory-service</module>
+        <module>ticket-pro/event-service</module>
+        <module>ticket-pro/booking-service</module>
+        <module>ticket-pro/search-service</module>
         <!-- add more services here -->
     </modules>
 
