@@ -85,3 +85,43 @@ echo "$MINIKUBE_IP auth.local" | sudo tee -a /etc/hosts
 curl http://api.local/actuator/health
 curl http://api.local/api/user-service/actuator/health
 ```
+
+# Local databases
+
+### Create PostgreSQLS
+
+```
+docker run -d \
+  --name postgresql \
+  -e POSTGRESQL_USERNAME=root \
+  -e POSTGRESQL_PASSWORD=secret \
+  --restart unless-stopped \
+  -p 5432:5432 \
+  -v postgresql_data:/bitnami/postgresql \
+  bitnami/postgresql:latest
+```
+
+### Create MongoDB
+
+```
+docker run -d \
+  --name mongodb \
+  -e MONGODB_USERNAME=root \
+  -e MONGODB_PASSWORD=secret \
+  -e MONGODB_ROOT_PASSWORD=secret \
+  --restart unless-stopped \
+  -p 27017:27017 \
+  -v mongodb_data:/bitnami/mongodb \
+  bitnami/mongodb:latest
+```
+
+### Create Redis
+
+```
+docker run -d \
+  --name redis \
+  --restart unless-stopped \
+  -p 6379:6379 \
+  -v redis_data:/bitnami/redis \
+  bitnami/redis:latest
+```
