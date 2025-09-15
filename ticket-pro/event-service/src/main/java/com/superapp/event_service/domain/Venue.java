@@ -1,6 +1,7 @@
 package com.superapp.event_service.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
@@ -8,10 +9,12 @@ import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +38,8 @@ public class Venue {
     private String city;
     private String country;
     private Integer capacity;
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
+    private List<Segment> segments;
 
     @CreatedDate
     private LocalDateTime createdAt;

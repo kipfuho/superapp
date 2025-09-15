@@ -45,12 +45,12 @@ public class Event {
     private LocalDateTime deletedAt; // for soft delete
 
     // --- Venue relationship ---
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
     // --- Organizer relationship ---
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id")
     private Organizer organizer;
 
