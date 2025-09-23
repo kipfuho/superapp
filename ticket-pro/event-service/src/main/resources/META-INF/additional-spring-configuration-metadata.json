@@ -16,9 +16,9 @@
       "description": "AWS S3 Public Base Url"
     },
     {
-      "name": "app.topics.event-created",
+      "name": "app.topics.ticket-creation",
       "type": "java.lang.String",
-      "description": "Kafka topic for event-created messages"
+      "description": "Kafka topic for creating tickets based on events and venue"
     }
   ]
 }

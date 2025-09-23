@@ -1,6 +1,7 @@
 package com.superapp.event_service.messaging;
 
-import com.superapp.event_service.messaging.contract.EventCreated;
+import com.superapp.event_service.messaging.contract.TicketCreation;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -11,27 +12,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventMessagingService {
 
-    private final KafkaTemplate<String, EventCreated> template;
+    private final KafkaTemplate<String, TicketCreation> template;
     private final String topic;
 
     public EventMessagingService(
-            KafkaTemplate<String, EventCreated> template,
-            @Value("${app.topics.event-created}") String topic) {
+            KafkaTemplate<String, TicketCreation> template,
+            @Value("${app.topics.ticket-creation}") String topic) {
         this.template = template;
         this.topic = topic;
     }
 
-    public CompletableFuture<Void> publishEventCreated(EventCreated payload) {
-        // Use eventId as the Kafka key to keep ordering per event
-        ProducerRecord<String, EventCreated> record = new ProducerRecord<>(topic, payload.eventId(), payload);
-        // add headers for routing/observability
-        if (payload.traceId() != null) {
-            record.headers().add(new RecordHeader("traceId", payload.traceId().getBytes()));
-        }
-        record.headers().add(new RecordHeader("eventType", "EventCreated".getBytes()));
-        record.headers().add(new RecordHeader("source", "event-service".getBytes()));
+    public CompletableFuture<Void> publishTicketCreation(TicketCreation payload) {
+        // key by eventId (keeps order per event on the topic)
+        ProducerRecord<String, TicketCreation> record = new ProducerRecord<>(topic, payload.eventId(), payload);
 
-        return template.send(record)
-                .thenApply(result -> null);
+        if (payload.traceId() != null) {
+            record.headers().add(new RecordHeader("traceId", payload.traceId().getBytes(StandardCharsets.UTF_8)));
+        }
+        record.headers().add(new RecordHeader("eventType", "TicketCreation".getBytes(StandardCharsets.UTF_8)));
+        record.headers().add(new RecordHeader("source", "event-service".getBytes(StandardCharsets.UTF_8)));
+
+        return template.send(record).thenApply(result -> null);
     }
 }

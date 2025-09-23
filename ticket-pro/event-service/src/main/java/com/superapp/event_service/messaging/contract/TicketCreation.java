@@ -1,10 +1,10 @@
 package com.superapp.event_service.messaging.contract;
 
-public record EventCreated(
+public record TicketCreation(
         String eventId,
         String venueId,
         String title,
-        String description,
+        String placeIds,
         String source, // "event-service"
         String traceId // for observability
 ) {

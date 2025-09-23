@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.superapp.event_service.domain.Event;
+import com.superapp.event_service.domain.Venue;
 import com.superapp.event_service.messaging.EventMessagingService;
-import com.superapp.event_service.messaging.contract.EventCreated;
+import com.superapp.event_service.messaging.contract.TicketCreation;
 import com.superapp.event_service.repo.EventRepo;
+import com.superapp.event_service.util.PlaceUtils;
+import com.superapp.event_service.util.SeatGrouper;
 import com.superapp.event_service.web.dto.EventDtos.CreateEventReq;
 import com.superapp.event_service.web.dto.EventDtos.EventRes;
 import com.superapp.event_service.web.dto.EventDtos.UpdateEventReq;
@@ -29,25 +32,45 @@ public class EventService {
     public EventRes createEvent(CreateEventReq req) {
         Event e = mapper.toEvent(req);
         Event event = repo.save(e);
+        Venue venue = event.getVenue();
+        var placeIds = PlaceUtils.collectPlaceIdsFromSegments(venue.getSegments());
+        var grouped = SeatGrouper.groupPlaceIds(placeIds);
+        var spec = String.join(",", grouped);
 
         String traceId = MDC.get("traceId");
-        var msg = new EventCreated(
+        var msg = new TicketCreation(
                 event.getId().toString(),
-                event.getVenue().getId().toString(),
-                event.getTitle(),
-                event.getDescription(),
+                venue.getId().toString(),
+                "Event Created",
+                spec,
                 "event-service",
                 traceId);
-        messaging.publishEventCreated(msg); // async
+        messaging.publishTicketCreation(msg); // async
 
         return mapper.toEventRes(event);
     }
 
+    @Transactional
     public EventRes updateEvent(UUID id, UpdateEventReq req) {
         Event e = repo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Event not found"));
         mapper.updateEvent(req, e);
         Event event = repo.save(e);
+        Venue venue = event.getVenue();
+        var placeIds = PlaceUtils.collectPlaceIdsFromSegments(venue.getSegments());
+        var grouped = SeatGrouper.groupPlaceIds(placeIds);
+        var spec = String.join(",", grouped);
+
+        String traceId = MDC.get("traceId");
+        var msg = new TicketCreation(
+                event.getId().toString(),
+                venue.getId().toString(),
+                "Event Updated",
+                spec,
+                "event-service",
+                traceId);
+        messaging.publishTicketCreation(msg); // async
+
         return mapper.toEventRes(event);
     }
 }

@@ -11,10 +11,10 @@ import com.superapp.event_service.web.dto.EventDtos.EventRes;
 import com.superapp.event_service.web.dto.EventDtos.LineupItem;
 import com.superapp.event_service.web.dto.EventDtos.UpdateEventReq;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = RefMapper.class)
 public interface EventMapper {
-    @Mapping(target = "venue.id", source = "venueId")
-    @Mapping(target = "organizer.id", source = "organizerId")
+    @Mapping(target = "venue", source = "venueId")
+    @Mapping(target = "organizer", source = "organizerId")
     Event toEvent(CreateEventReq req);
 
     void updateEvent(UpdateEventReq req, @MappingTarget Event target);
