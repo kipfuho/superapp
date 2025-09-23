@@ -2,6 +2,7 @@ package com.superapp.booking_service.domain;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
@@ -32,13 +33,14 @@ public class Ticket {
         OPEN, RESERVED, BOOKED, CANCELLED, RESELLING
     }
 
-    @EmbeddedId
-    private TicketId id;
+    @Id
+    @GeneratedValue
+    private UUID id;
 
-    @Column(name = "event_id", insertable = false, updatable = false)
-    private java.util.UUID eventId;
+    @Column(insertable = false, updatable = false)
+    private UUID eventId;
 
-    @Column(name = "place_id", insertable = false, updatable = false, length = 128)
+    @Column(insertable = false, updatable = false, length = 128)
     private String placeId;
 
     @Enumerated(EnumType.STRING)
@@ -50,36 +52,18 @@ public class Ticket {
     @Column(precision = 12, scale = 2)
     private BigDecimal price;
 
-    @Pattern(regexp = "^[A-Z]{3}$") // ISO 4217
     @Column(length = 3)
-    private String currency;
+    private String currency; // ISO 4217
 
-    @Column(name = "reserved_at")
     private Instant reservedAt;
 
-    @Column(name = "booked_at")
     private Instant bookedAt;
 
-    @Column(name = "cancelled_at")
     private Instant cancelledAt;
 
-    @Column(name = "reselling_at")
     private Instant resellingAt;
 
-    @Column(name = "reservation_expires_at")
-    private Instant reservationExpiresAt;
-
-    @Column(name = "hold_token", length = 64)
-    private String holdToken;
-
-    @Column(name = "customer_id")
-    private UUID customerId;
-
-    @Column(name = "order_id")
-    private UUID orderId;
-
-    @Column(name = "payment_id")
-    private String paymentId;
+    private List<UUID> bookingId;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
