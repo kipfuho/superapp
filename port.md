@@ -4,6 +4,7 @@ discovery-server: 8761
 keycloak: 8089
 mongodb: 27017
 redis: 6379
+kafka: 9090, 9092, 9094
 
 pos-order-system
 order-service: 8090

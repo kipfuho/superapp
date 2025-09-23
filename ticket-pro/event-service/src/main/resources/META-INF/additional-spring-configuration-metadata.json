@@ -14,6 +14,11 @@
       "name": "aws.s3.url",
       "type": "java.lang.String",
       "description": "AWS S3 Public Base Url"
+    },
+    {
+      "name": "app.topics.event-created",
+      "type": "java.lang.String",
+      "description": "Kafka topic for event-created messages"
     }
   ]
 }

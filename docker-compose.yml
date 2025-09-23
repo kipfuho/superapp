@@ -1,37 +1,89 @@
-version: "3.9"
-
 services:
   # === Keycloak (auth) ===
-  keycloak:
-    image: quay.io/keycloak/keycloak:25.0.2
-    command: start-dev
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-    ports:
-      - "8089:8080" # admin console & OIDC endpoints (host:8089)
-    networks:
-      - backend
+  # keycloak:
+  #   image: quay.io/keycloak/keycloak:25.0.2
+  #   command: start-dev
+  #   environment:
+  #     KEYCLOAK_ADMIN: admin
+  #     KEYCLOAK_ADMIN_PASSWORD: admin
+  #   ports:
+  #     - "8089:8080" # admin console & OIDC endpoints (host:8089)
+  #   networks:
+  #     - backend
 
-  # === Mongo for user-service ===
+  # === MongoDB ===
   mongodb:
-    image: mongo:7
+    image: bitnami/mongodb:latest
     ports:
       - "27017:27017" # exposed for dev/test; can remove in prod
+    environment:
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=secret
     networks:
       - backend
     volumes:
-      - mongodb_data:/data/
+      - mongodb_data:/bitnami/mongodb
 
-      # === Mongo for user-service ===
+  # === PostgreSQL ===
+  postgresql:
+    image: bitnami/postgresql:latest
+    ports:
+      - "5432:5432" # exposed for dev/test; can remove in prod
+    environment:
+      - POSTGRESQL_USERNAME=root
+      - POSTGRESQL_PASSWORD=secret
+    networks:
+      - backend
+    volumes:
+      - posgresql_data:/bitnami/postgresql
+
+  # === Redis cluster ===
   redis:
-    image: redis:7-alpine
+    image: bitnami/redis:latest
     ports:
       - "6379:6379" # exposed for dev/test; can remove in prod
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
     networks:
       - backend
+
+  # === Kafka (KRaft mode, no Zookeeper needed) ===
+  kafka:
+    image: bitnami/kafka:latest
+    ports:
+      - "9092:9092" # external access (dev)
+      - "9094:9094" # for container-to-container inside backend network
+    environment:
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,INTERNAL://kafka:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
     volumes:
-      - redis_data:/data/
+      - kafka_data:/bitnami/kafka
+    networks:
+      - backend
+
+  # === Kafka UI ===
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "9090:8080" # open UI at http://localhost:9090
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
+      # optional auth for the UI:
+      # KAFKA_UI_AUTH_TYPE: "LOGIN_FORM"
+      # KAFKA_UI_USERNAME: "admin"
+      # KAFKA_UI_PASSWORD: "admin"
+    networks:
+      - backend
 
   # === Eureka discovery server ===
   discovery-server:
@@ -41,60 +93,61 @@ services:
     networks:
       - backend
 
-  # === user-service (Mongo + Eureka client) ===
-  user-service:
-    build: ./user-service
-    ports:
-      - "8081:8081" # exposed for dev/test; can remove in prod
-    depends_on:
-      - mongodb
-      - discovery-server
-    environment:
-      MONGO_URI: mongodb://mongodb:27017
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
-      KEYCLOAK_URL: http://keycloak:8080
-      KEYCLOAK_ADMIN_USER: admin
-      KEYCLOAK_ADMIN_PASS: admin
-    networks:
-      - backend
-
   # === API Gateway (public entry) ===
-  api-gateway:
-    build: ./api-gateway
-    depends_on:
-      - discovery-server
-      - user-service
-      - keycloak
-      - redis
-    ports:
-      - "8080:8080" # only public-facing service
-    environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
-    networks:
-      - backend
+  # api-gateway:
+  #   build: ./api-gateway
+  #   depends_on:
+  #     - discovery-server
+  #     - user-service
+  #     - keycloak
+  #     - redis
+  #   ports:
+  #     - "8080:8080" # only public-facing service
+  #   environment:
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+  #   networks:
+  #     - backend
+
+  # === user-service (Mongo + Eureka client) ===
+  # user-service:
+  #   build: ./user-service
+  #   ports:
+  #     - "8081:8081" # exposed for dev/test; can remove in prod
+  #   depends_on:
+  #     - mongodb
+  #     - discovery-server
+  #   environment:
+  #     MONGO_URI: mongodb://mongodb:27017
+  #     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+  #     KEYCLOAK_URL: http://keycloak:8080
+  #     KEYCLOAK_ADMIN_USER: admin
+  #     KEYCLOAK_ADMIN_PASS: admin
+  #   networks:
+  #     - backend
 
   # === branch-service (Mongo + Eureka client) ===
-  branch-service:
-    build: ./pos-order-system/branch-service
-    ports:
-      - "8091:8091" # exposed for dev/test; can remove in prod
-    depends_on:
-      - mongodb
-      - discovery-server
-      - redis
-    environment:
-      MONGO_URI: mongodb://mongodb:27017
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    networks:
-      - backend
+  # branch-service:
+  #   build: ./pos-order-system/branch-service
+  #   ports:
+  #     - "8091:8091" # exposed for dev/test; can remove in prod
+  #   depends_on:
+  #     - mongodb
+  #     - discovery-server
+  #     - redis
+  #   environment:
+  #     MONGO_URI: mongodb://mongodb:27017
+  #     EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #   networks:
+  #     - backend
 
 networks:
   backend:
 
 volumes:
   mongodb_data:
-  redis_data:
+  posgresql_data:
+  kafka_data:

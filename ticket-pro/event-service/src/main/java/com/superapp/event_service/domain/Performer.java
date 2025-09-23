@@ -11,13 +11,15 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "performers", indexes = {
         @Index(name = "idx_performer_name", columnList = "name"),
         @Index(name = "idx_performer_slug", columnList = "slug", unique = true)
 })
-@SQLDelete(sql = "UPDATE events SET deleted_at = now() WHERE id = ?")
+@EntityListeners(AuditingEntityListener.class)
+@SQLDelete(sql = "UPDATE performers SET deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL") // replaces @Where
 @Data
 @NoArgsConstructor
@@ -67,8 +69,13 @@ public class Performer {
     private java.util.Map<String, String> socialLinks;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 }

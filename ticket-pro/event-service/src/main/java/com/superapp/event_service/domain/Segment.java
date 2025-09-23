@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.CascadeType;
 
@@ -15,6 +16,7 @@ import jakarta.persistence.CascadeType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 // import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -29,6 +31,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "segments")
+@EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE segments SET deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL") // replaces @Where
 @Data
@@ -65,9 +68,14 @@ public class Segment {
     private List<Place> places;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @Data
