@@ -2,7 +2,7 @@ package com.superapp.event_service.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
@@ -47,17 +47,20 @@ public class EventPerformer {
     private boolean headliner; // redundant with Role.HEADLINER but handy for queries
     private Integer billingIndex; // 0 = top line; null if N/A
     private String stageName; // “Main Stage”, “Arena A”
-    private LocalDateTime setStart; // optional
-    private LocalDateTime setEnd; // optional
+    private Instant setStart; // optional
+    private Instant setEnd; // optional
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
+
+    @Version
+    private long version;
 }

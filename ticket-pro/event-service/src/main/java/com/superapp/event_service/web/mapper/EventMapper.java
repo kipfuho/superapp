@@ -15,8 +15,19 @@ import com.superapp.event_service.web.dto.EventDtos.UpdateEventReq;
 public interface EventMapper {
     @Mapping(target = "venue", source = "venueId")
     @Mapping(target = "organizer", source = "organizerId")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     Event toEvent(CreateEventReq req);
 
+    @Mapping(target = "venue", source = "venueId")
+    @Mapping(target = "organizer", source = "organizerId")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "version", ignore = true)
     void updateEvent(UpdateEventReq req, @MappingTarget Event target);
 
     /* ------------ Entity -> Response DTO ------------ */

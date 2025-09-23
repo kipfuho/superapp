@@ -1,7 +1,7 @@
 package com.superapp.event_service.web.dto;
 
 import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import com.superapp.event_service.domain.EventPerformer.Role;
@@ -15,8 +15,8 @@ public class EventPerformerDtos {
             @NotNull Boolean headliner,
             Integer billingIndex, // 0 = top line; null if not ordered
             String stageName,
-            LocalDateTime setStart,
-            LocalDateTime setEnd) {
+            Instant setStart,
+            Instant setEnd) {
     }
 
     // === Update (partial) ===
@@ -26,8 +26,8 @@ public class EventPerformerDtos {
             Boolean headliner,
             Integer billingIndex,
             String stageName,
-            LocalDateTime setStart,
-            LocalDateTime setEnd) {
+            Instant setStart,
+            Instant setEnd) {
     }
 
     // === Response ===
@@ -39,12 +39,12 @@ public class EventPerformerDtos {
             boolean headliner,
             Integer billingIndex,
             String stageName,
-            LocalDateTime setStart,
-            LocalDateTime setEnd,
+            Instant setStart,
+            Instant setEnd,
             // Optional embedded summaries for convenience
             EventSummary event,
             PerformerDtos.PerformerSummary performer) {
-        public record EventSummary(UUID id, String title, LocalDateTime startDateTime) {
+        public record EventSummary(UUID id, String title, Instant startDateTime) {
         }
     }
 }

@@ -3,7 +3,7 @@ package com.superapp.event_service.repo;
 import com.superapp.event_service.domain.Event;
 import com.superapp.event_service.domain.EventPerformer;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public interface EventPerformerRepo extends JpaRepository<EventPerformer, UUID> 
                 and ep.event.startDateTime >= :from
               order by ep.event.startDateTime asc
             """)
-    List<Event> findUpcomingEventsForPerformer(UUID performerId, LocalDateTime from);
+    List<Event> findUpcomingEventsForPerformer(UUID performerId, Instant from);
 
     // Festival lineup by stage and time
     List<EventPerformer> findByEventIdOrderByStageNameAscSetStartAsc(UUID eventId);

@@ -4,10 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import com.superapp.event_service.domain.EventPerformer;
 
 public class EventDtos {
 
@@ -17,21 +19,22 @@ public class EventDtos {
             String description,
             String category,
             String status,
-            LocalDateTime startDateTime,
-            LocalDateTime endDateTime,
+            Instant startDateTime,
+            Instant endDateTime,
             Double minPrice,
             Double maxPrice,
             String currency,
             Integer ticketInventory,
-            LocalDateTime saleStart,
-            LocalDateTime saleEnd,
+            Instant saleStart,
+            Instant saleEnd,
             String posterUrl,
             String bannerUrl,
             Set<String> tags,
             String language,
             String ageRestriction,
             @NotNull UUID venueId,
-            @NotNull UUID organizerId) {
+            @NotNull UUID organizerId,
+            List<EventPerformer> lineup) {
     }
 
     // === Update ===
@@ -41,21 +44,22 @@ public class EventDtos {
             String description,
             String category,
             String status,
-            LocalDateTime startDateTime,
-            LocalDateTime endDateTime,
+            Instant startDateTime,
+            Instant endDateTime,
             Double minPrice,
             Double maxPrice,
             String currency,
             Integer ticketInventory,
-            LocalDateTime saleStart,
-            LocalDateTime saleEnd,
+            Instant saleStart,
+            Instant saleEnd,
             String posterUrl,
             String bannerUrl,
             Set<String> tags,
             String language,
             String ageRestriction,
             UUID venueId,
-            UUID organizerId) {
+            UUID organizerId,
+            List<EventPerformer> lineup) {
     }
 
     // === Response ===
@@ -65,18 +69,18 @@ public class EventDtos {
             String description,
             String category,
             String status,
-            LocalDateTime startDateTime,
-            LocalDateTime endDateTime,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt,
+            Instant startDateTime,
+            Instant endDateTime,
+            Instant createdAt,
+            Instant updatedAt,
             UUID venueId,
             UUID organizerId,
             Double minPrice,
             Double maxPrice,
             String currency,
             Integer ticketInventory,
-            LocalDateTime saleStart,
-            LocalDateTime saleEnd,
+            Instant saleStart,
+            Instant saleEnd,
             String posterUrl,
             String bannerUrl,
             Set<String> tags,
@@ -93,7 +97,7 @@ public class EventDtos {
             boolean headliner,
             Integer billingIndex,
             String stageName,
-            LocalDateTime setStart,
-            LocalDateTime setEnd) {
+            Instant setStart,
+            Instant setEnd) {
     }
 }

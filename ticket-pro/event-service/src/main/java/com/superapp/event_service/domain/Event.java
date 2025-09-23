@@ -1,8 +1,12 @@
 package com.superapp.event_service.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
-import java.time.LocalDateTime;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,19 +41,8 @@ public class Event {
     private String category; // concert, sports, theater, etc.
     private String status; // scheduled, postponed, cancelled, sold_out
 
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant startDateTime;
+    private Instant endDateTime;
 
     // --- Venue relationship ---
     @ManyToOne(fetch = FetchType.LAZY)
@@ -67,12 +60,19 @@ public class Event {
     private java.util.List<EventPerformer> lineup;
 
     // --- Ticketing ---
-    private Double minPrice;
-    private Double maxPrice;
+    @PositiveOrZero
+    @Column(precision = 12, scale = 2)
+    private BigDecimal minPrice;
+    @PositiveOrZero
+    @Column(precision = 12, scale = 2)
+    private BigDecimal maxPrice;
+
+    @Pattern(regexp = "^[A-Z]{3}$") // ISO 4217
+    @Column(length = 3)
     private String currency;
     private Integer ticketInventory;
-    private LocalDateTime saleStart;
-    private LocalDateTime saleEnd;
+    private Instant saleStart;
+    private Instant saleEnd;
 
     // --- Media ---
     private String posterUrl;
@@ -84,4 +84,18 @@ public class Event {
 
     private String language;
     private String ageRestriction;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
+    @Version
+    private long version;
 }

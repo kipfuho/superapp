@@ -1,6 +1,6 @@
 package com.superapp.event_service.web.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,8 +28,8 @@ public class VenueDtos {
             String country,
             Integer capacity,
             List<SegmentRes> segments,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
+            Instant createdAt,
+            Instant updatedAt) {
     }
 
     public record SegmentRes(
