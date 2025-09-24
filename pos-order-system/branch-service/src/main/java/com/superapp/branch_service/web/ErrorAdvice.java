@@ -1,7 +1,10 @@
 package com.superapp.branch_service.web;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +20,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 
 @RestControllerAdvice
 public class ErrorAdvice {
+    @Autowired
+    private Environment env;
+
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, Object> notFound(NoSuchElementException ex,
@@ -32,7 +40,7 @@ public class ErrorAdvice {
                 "field", "",
                 "violationMessage", ex.getMessage() != null ? ex.getMessage() : "Resource not found"));
 
-        return responseBody(url, "Not Found", errors, HttpStatus.NOT_FOUND);
+        return responseBody(url, "Not Found", errors, ex, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
@@ -46,7 +54,7 @@ public class ErrorAdvice {
                 "field", "",
                 "violationMessage", ex.getMessage() != null ? ex.getMessage() : "Unexpected error"));
 
-        return responseBody(url, "Internal Server Error", errors, HttpStatus.INTERNAL_SERVER_ERROR);
+        return responseBody(url, "Internal Server Error", errors, ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // ===== MVC: @RequestBody @Valid errors
@@ -61,7 +69,7 @@ public class ErrorAdvice {
                         "violationMessage", fe.getDefaultMessage()))
                 .toList();
 
-        return responseBody(url, "Validation Errors", errors, HttpStatus.BAD_REQUEST);
+        return responseBody(url, "Validation Errors", errors, ex, HttpStatus.BAD_REQUEST);
     }
 
     // ===== Both MVC & WebFlux: Constraint violations on @Validated method params,
@@ -82,11 +90,12 @@ public class ErrorAdvice {
                 })
                 .toList();
 
-        return responseBody(url, "Validation Errors", errors, HttpStatus.BAD_REQUEST);
+        return responseBody(url, "Validation Errors", errors, ex, HttpStatus.BAD_REQUEST);
     }
 
     // ---- helpers
-    private static Map<String, Object> responseBody(String url, String title, List<Map<String, Object>> errors,
+    private Map<String, Object> responseBody(String url, String title, List<Map<String, Object>> errors,
+            Exception ex,
             HttpStatus status) {
         URI uri = url != null ? URI.create(url) : URI.create("http://unknown/");
         Map<String, Object> body = new LinkedHashMap<>();
@@ -96,6 +105,13 @@ public class ErrorAdvice {
         body.put("errors", errors);
         body.put("status", status.value());
         body.put("timestamp", Instant.now());
+
+        // Remove stackTrace on prod
+        if (!Arrays.asList(env.getActiveProfiles()).contains("prod")) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            body.put("stackTrace", sw.toString());
+        }
 
         return body;
     }
