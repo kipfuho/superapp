@@ -8,6 +8,7 @@ import com.superapp.event_service.web.dto.EventDtos.CreateEventReq;
 import com.superapp.event_service.web.dto.EventDtos.EventRes;
 import com.superapp.event_service.web.dto.EventDtos.UpdateEventReq;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
@@ -23,12 +24,12 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping("/")
-    public EventRes createEvent(@RequestBody CreateEventReq req) {
+    public EventRes createEvent(@Valid @RequestBody CreateEventReq req) {
         return eventService.createEvent(req);
     }
 
     @PostMapping("/{id}")
-    public EventRes createEvent(@PathVariable UUID id, @RequestBody UpdateEventReq req) {
+    public EventRes updateEvent(@PathVariable UUID id, @Valid @RequestBody UpdateEventReq req) {
         return eventService.updateEvent(id, req);
     }
 }
