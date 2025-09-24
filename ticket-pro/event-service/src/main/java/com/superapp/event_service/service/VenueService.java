@@ -8,8 +8,11 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import com.superapp.event_service.messaging.EventMessagingService;
+import com.superapp.event_service.domain.Event;
 import com.superapp.event_service.domain.Venue;
+import com.superapp.event_service.domain.Event.EventStatus;
 import com.superapp.event_service.messaging.contract.TicketCreation;
+import com.superapp.event_service.repo.EventRepo;
 import com.superapp.event_service.repo.VenueRepo;
 import com.superapp.event_service.util.SeatUtils;
 import com.superapp.event_service.util.SegmentBuilder;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class VenueService {
+    private final EventRepo eventRepo;
     private final VenueRepo repo;
     private final VenueMapper mapper;
     private final EventMessagingService messaging;
@@ -47,13 +51,14 @@ public class VenueService {
         SegmentBuilder.ensureSegments(v);
         Venue venue = repo.save(v);
 
+        List<Event> events = eventRepo.findByVenueIdAndStatus(venue.getId(), EventStatus.SCHEDULED);
         List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
         TicketCreation msg = new TicketCreation(
-                "ALL",
+                events.stream().map(e -> e.getId().toString()).toList(),
                 venue.getId().toString(),
                 "Venue Updated",
-                String.join(",", groupedPlaceIds),
+                groupedPlaceIds,
                 "event-service",
                 traceId,
                 null);

@@ -1,4 +1,4 @@
-package com.superapp.event_service.messaging.contract;
+package com.superapp.booking_service.messaging.contract;
 
 import java.math.BigDecimal;
 import java.util.List;

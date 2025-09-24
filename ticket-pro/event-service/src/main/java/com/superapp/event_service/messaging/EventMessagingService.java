@@ -23,8 +23,8 @@ public class EventMessagingService {
     }
 
     public CompletableFuture<Void> publishTicketCreation(TicketCreation payload) {
-        // key by eventId (keeps order per event on the topic)
-        ProducerRecord<String, TicketCreation> record = new ProducerRecord<>(topic, payload.eventId(), payload);
+        ProducerRecord<String, TicketCreation> record = new ProducerRecord<>(topic, payload.eventIds().toString(),
+                payload);
 
         if (payload.traceId() != null) {
             record.headers().add(new RecordHeader("traceId", payload.traceId().getBytes(StandardCharsets.UTF_8)));

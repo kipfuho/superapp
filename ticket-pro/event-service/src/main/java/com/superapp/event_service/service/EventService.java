@@ -38,10 +38,10 @@ public class EventService {
         List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
         TicketCreation msg = new TicketCreation(
-                event.getId().toString(),
+                List.of(event.getId().toString()),
                 venue.getId().toString(),
                 "Event Created",
-                String.join(",", groupedPlaceIds),
+                groupedPlaceIds,
                 "event-service",
                 traceId,
                 new PricingRule(
@@ -64,10 +64,10 @@ public class EventService {
         List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
         TicketCreation msg = new TicketCreation(
-                event.getId().toString(),
+                List.of(event.getId().toString()),
                 venue.getId().toString(),
                 "Event Updated",
-                String.join(",", groupedPlaceIds),
+                groupedPlaceIds,
                 "event-service",
                 traceId,
                 new PricingRule(

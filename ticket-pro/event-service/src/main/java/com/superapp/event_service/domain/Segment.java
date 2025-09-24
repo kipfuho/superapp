@@ -15,11 +15,13 @@ import jakarta.persistence.CascadeType;
 // import com.superapp.event_service.listener.SegmentListener;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ConstraintMode;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
 // import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -58,12 +60,12 @@ public class Segment {
 
     // link back to Venue
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "venue_id")
+    @JoinColumn(name = "venue_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Venue venue;
 
     // self-referencing parent for hierarchy
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Segment parent;
 
     // children segments

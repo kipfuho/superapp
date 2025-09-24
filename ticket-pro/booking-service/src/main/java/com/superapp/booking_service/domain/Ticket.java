@@ -45,7 +45,8 @@ public class Ticket {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private TicketStatus status;
+    @Builder.Default
+    private TicketStatus status = TicketStatus.OPEN;
 
     // Money
     @PositiveOrZero

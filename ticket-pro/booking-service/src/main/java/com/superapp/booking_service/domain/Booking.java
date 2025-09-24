@@ -56,7 +56,8 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
-    private BookingStatus status;
+    @Builder.Default
+    private BookingStatus status = BookingStatus.INPROGRESS;
 
     private String paymentMethod;
 
