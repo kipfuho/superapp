@@ -38,9 +38,13 @@ public class Organizer {
 
     @Column(nullable = false)
     private String name;
+
     private String email;
+
     private String phone;
+
     private String website;
+
     @Lob
     private String description;
 

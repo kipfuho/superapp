@@ -56,9 +56,13 @@ public class Performer {
     private Set<String> genres;
 
     private String countryCode; // ISO-3166-1 alpha-2
+
     private LocalDate formedOn; // for bands/teams
+
     private String imageUrl;
+
     private String bannerUrl;
+
     private String website;
 
     // Social links (key=value, e.g., "instagram" -> "https://...")

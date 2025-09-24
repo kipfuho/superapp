@@ -1,5 +1,6 @@
 package com.superapp.event_service.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -11,9 +12,9 @@ import com.superapp.event_service.domain.Event;
 import com.superapp.event_service.domain.Venue;
 import com.superapp.event_service.messaging.EventMessagingService;
 import com.superapp.event_service.messaging.contract.TicketCreation;
+import com.superapp.event_service.messaging.contract.TicketCreation.PricingRule;
 import com.superapp.event_service.repo.EventRepo;
-import com.superapp.event_service.util.PlaceUtils;
-import com.superapp.event_service.util.SeatGrouper;
+import com.superapp.event_service.util.SeatUtils;
 import com.superapp.event_service.web.dto.EventDtos.CreateEventReq;
 import com.superapp.event_service.web.dto.EventDtos.EventRes;
 import com.superapp.event_service.web.dto.EventDtos.UpdateEventReq;
@@ -33,18 +34,20 @@ public class EventService {
         Event e = mapper.toEvent(req);
         Event event = repo.save(e);
         Venue venue = event.getVenue();
-        var placeIds = PlaceUtils.collectPlaceIdsFromSegments(venue.getSegments());
-        var grouped = SeatGrouper.groupPlaceIds(placeIds);
-        var spec = String.join(",", grouped);
 
+        List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
-        var msg = new TicketCreation(
+        TicketCreation msg = new TicketCreation(
                 event.getId().toString(),
                 venue.getId().toString(),
                 "Event Created",
-                spec,
+                String.join(",", groupedPlaceIds),
                 "event-service",
-                traceId);
+                traceId,
+                new PricingRule(
+                        event.getMinPrice(),
+                        event.getMaxPrice(),
+                        event.getCurrency()));
         messaging.publishTicketCreation(msg); // async
 
         return mapper.toEventRes(event);
@@ -57,18 +60,20 @@ public class EventService {
         mapper.updateEvent(req, e);
         Event event = repo.save(e);
         Venue venue = event.getVenue();
-        var placeIds = PlaceUtils.collectPlaceIdsFromSegments(venue.getSegments());
-        var grouped = SeatGrouper.groupPlaceIds(placeIds);
-        var spec = String.join(",", grouped);
 
+        List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
-        var msg = new TicketCreation(
+        TicketCreation msg = new TicketCreation(
                 event.getId().toString(),
                 venue.getId().toString(),
                 "Event Updated",
-                spec,
+                String.join(",", groupedPlaceIds),
                 "event-service",
-                traceId);
+                traceId,
+                new PricingRule(
+                        event.getMinPrice(),
+                        event.getMaxPrice(),
+                        event.getCurrency()));
         messaging.publishTicketCreation(msg); // async
 
         return mapper.toEventRes(event);

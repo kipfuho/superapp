@@ -35,13 +35,19 @@ public class Venue {
     @Id
     @GeneratedValue
     private UUID id;
+
     @Column(nullable = false)
     private String name;
+
     @Column(nullable = false)
     private String address;
+
     private String city;
+
     private String country;
+
     private Integer capacity;
+
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Segment> segments;
 

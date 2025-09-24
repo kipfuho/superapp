@@ -1,5 +1,6 @@
 package com.superapp.event_service.service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -10,9 +11,8 @@ import com.superapp.event_service.messaging.EventMessagingService;
 import com.superapp.event_service.domain.Venue;
 import com.superapp.event_service.messaging.contract.TicketCreation;
 import com.superapp.event_service.repo.VenueRepo;
-import com.superapp.event_service.util.PlaceUtils;
-import com.superapp.event_service.util.SeatGrouper;
-import com.superapp.event_service.util.SegmentIdBuilder;
+import com.superapp.event_service.util.SeatUtils;
+import com.superapp.event_service.util.SegmentBuilder;
 import com.superapp.event_service.web.dto.VenueDtos.CreateVenueReq;
 import com.superapp.event_service.web.dto.VenueDtos.UpdateVenueReq;
 import com.superapp.event_service.web.dto.VenueDtos.VenueRes;
@@ -35,7 +35,7 @@ public class VenueService {
 
     public VenueRes createVenue(CreateVenueReq req) {
         Venue v = mapper.toVenue(req);
-        SegmentIdBuilder.ensureSegmentIds(v);
+        SegmentBuilder.ensureSegments(v);
         Venue venue = repo.save(v);
         return mapper.toVenueRes(venue);
     }
@@ -44,21 +44,19 @@ public class VenueService {
         Venue v = repo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Venue not found"));
         mapper.updateVenue(req, v);
-        SegmentIdBuilder.ensureSegmentIds(v);
+        SegmentBuilder.ensureSegments(v);
         Venue venue = repo.save(v);
 
-        var placeIds = PlaceUtils.collectPlaceIdsFromSegments(venue.getSegments());
-        var grouped = SeatGrouper.groupPlaceIds(placeIds);
-        var spec = String.join(",", grouped);
-
+        List<String> groupedPlaceIds = SeatUtils.groupPlaceIds(venue.getSegments());
         String traceId = MDC.get("traceId");
-        var msg = new TicketCreation(
+        TicketCreation msg = new TicketCreation(
                 "ALL",
                 venue.getId().toString(),
                 "Venue Updated",
-                spec,
+                String.join(",", groupedPlaceIds),
                 "event-service",
-                traceId);
+                traceId,
+                null);
         messaging.publishTicketCreation(msg); // async
 
         return mapper.toVenueRes(venue);

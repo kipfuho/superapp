@@ -4,15 +4,17 @@ import java.text.Normalizer;
 import java.util.*;
 import com.superapp.event_service.domain.Segment;
 import com.superapp.event_service.domain.Venue;
+import com.superapp.event_service.domain.Segment.SegmentType;
 
-public final class SegmentIdBuilder {
-    private SegmentIdBuilder() {
+public final class SegmentBuilder {
+    private SegmentBuilder() {
     }
 
     /**
      * Assigns IDs to all segments that don't have one, based on parent path + name.
+     * Assign segmentCategory if missing or invalid.
      */
-    public static void ensureSegmentIds(Venue venue) {
+    public static void ensureSegments(Venue venue) {
         if (venue == null || venue.getSegments() == null)
             return;
 
@@ -29,9 +31,12 @@ public final class SegmentIdBuilder {
         used.add(seg.getId());
 
         if (seg.getSegments() != null) {
+            seg.setSegmentCategory(SegmentType.COMPOSITE);
             for (Segment child : seg.getSegments()) {
                 assignRec(child, seg.getId(), used);
             }
+        } else {
+            seg.setSegmentCategory(SegmentType.SECTION);
         }
     }
 

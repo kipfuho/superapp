@@ -45,9 +45,13 @@ public class EventPerformer {
     private Role role;
 
     private boolean headliner; // redundant with Role.HEADLINER but handy for queries
+
     private Integer billingIndex; // 0 = top line; null if N/A
+
     private String stageName; // “Main Stage”, “Arena A”
+
     private Instant setStart; // optional
+
     private Instant setEnd; // optional
 
     @CreatedDate

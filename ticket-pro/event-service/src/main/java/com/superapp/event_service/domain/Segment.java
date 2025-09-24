@@ -17,6 +17,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 // import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -46,8 +48,12 @@ public class Segment {
 
     @Id
     private String id;
+
     @Column(nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
     private SegmentType segmentCategory;
 
     // link back to Venue
@@ -63,7 +69,9 @@ public class Segment {
     // children segments
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Segment> segments;
+
     private int totalPlaces;
+
     @Type(com.vladmihalcea.hibernate.type.json.JsonType.class)
     @Column(columnDefinition = "jsonb")
     private List<Place> places;

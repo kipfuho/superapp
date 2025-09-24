@@ -28,6 +28,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 public class Event {
 
+    public enum EventStatus {
+        SCHEDULED, POSTPONED, CANCELLED, COMPLETED
+    }
+
     @Id
     @GeneratedValue
     private UUID id;
@@ -39,9 +43,14 @@ public class Event {
     private String description;
 
     private String category; // concert, sports, theater, etc.
-    private String status; // scheduled, postponed, cancelled, sold_out
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
+    @Builder.Default
+    private EventStatus status = EventStatus.SCHEDULED;
 
     private Instant startDateTime;
+
     private Instant endDateTime;
 
     // --- Venue relationship ---
@@ -70,12 +79,16 @@ public class Event {
     @Pattern(regexp = "^[A-Z]{3}$") // ISO 4217
     @Column(length = 3)
     private String currency;
+
     private Integer ticketInventory;
+
     private Instant saleStart;
+
     private Instant saleEnd;
 
     // --- Media ---
     private String posterUrl;
+
     private String bannerUrl;
 
     // --- Extra metadata ---
@@ -83,6 +96,7 @@ public class Event {
     private Set<String> tags;
 
     private String language;
+
     private String ageRestriction;
 
     @CreatedDate

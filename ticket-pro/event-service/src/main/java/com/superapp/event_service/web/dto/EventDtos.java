@@ -2,8 +2,10 @@ package com.superapp.event_service.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -21,9 +23,9 @@ public class EventDtos {
             String status,
             Instant startDateTime,
             Instant endDateTime,
-            Double minPrice,
-            Double maxPrice,
-            String currency,
+            @PositiveOrZero BigDecimal minPrice,
+            @PositiveOrZero BigDecimal maxPrice,
+            @NotNull String currency,
             Integer ticketInventory,
             Instant saleStart,
             Instant saleEnd,
@@ -46,8 +48,8 @@ public class EventDtos {
             String status,
             Instant startDateTime,
             Instant endDateTime,
-            Double minPrice,
-            Double maxPrice,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
             String currency,
             Integer ticketInventory,
             Instant saleStart,
@@ -75,8 +77,8 @@ public class EventDtos {
             Instant updatedAt,
             UUID venueId,
             UUID organizerId,
-            Double minPrice,
-            Double maxPrice,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
             String currency,
             Integer ticketInventory,
             Instant saleStart,

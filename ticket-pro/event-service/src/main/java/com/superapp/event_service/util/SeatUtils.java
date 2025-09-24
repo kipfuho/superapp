@@ -1,15 +1,57 @@
 package com.superapp.event_service.util;
 
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class SeatGrouper {
+import com.superapp.event_service.domain.Segment;
+import com.superapp.event_service.domain.Segment.Place;
+
+public final class SeatUtils {
+    private SeatUtils() {
+    }
 
     private static final Pattern SUFFIX_NUMBER = Pattern.compile("^(.*?)(\\d+)$");
     private static final Pattern GROUPED = Pattern.compile("^(.+?)\\[(.*)]$");
     private static final Pattern RANGE = Pattern.compile("^(\\d+)\\s*-\\s*(\\d+)$");
     private static final Pattern DIGITS = Pattern.compile("^\\d+$");
+
+    /**
+     * Flattens the segment tree and returns unique place IDs (in encounter order).
+     */
+    public static List<String> collectPlaceIdsFromSegments(List<Segment> roots) {
+        if (roots == null || roots.isEmpty())
+            return List.of();
+
+        List<String> ordered = new ArrayList<>();
+        Deque<Segment> stack = new ArrayDeque<>(roots);
+
+        while (!stack.isEmpty()) {
+            Segment s = stack.pop();
+
+            // collect places in this segment
+            List<Place> places = s.getPlaces();
+            if (places != null) {
+                for (Segment.Place p : places) {
+                    if (p != null && p.getId() != null && !p.getId().isBlank()) {
+                        ordered.add(p.getId());
+                    }
+                }
+            }
+
+            // traverse children
+            List<Segment> children = s.getSegments();
+            if (children != null && !children.isEmpty()) {
+                // push in reverse to keep original order
+                for (int i = children.size() - 1; i >= 0; i--)
+                    stack.push(children.get(i));
+            }
+        }
+
+        // dedupe while preserving order
+        return new ArrayList<>(new LinkedHashSet<>(ordered));
+    }
 
     /**
      * Input: ["A1","A2","A3","A4","B10","B11","F1-A1","F1-A2","GA"]
@@ -51,6 +93,10 @@ public class SeatGrouper {
         result.addAll(noNumber);
 
         return result;
+    }
+
+    public static List<String> groupPlaceIds(List<Segment> roots) {
+        return groupPlaceIds(collectPlaceIdsFromSegments(roots));
     }
 
     // Optional: if you prefer "A[1-4,6,8-10]" style, swap this in place of the join
