@@ -16,9 +16,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
-@Table(name = "tickets", indexes = {
-        @Index(name = "idx_ticket_event_status", columnList = "event_id,status"),
-        @Index(name = "idx_ticket_customer_status", columnList = "customer_id,status")
+@Table(name = "tickets", uniqueConstraints = {
+        @UniqueConstraint(name = "uq_tickets_event_place", columnNames = { "event_id", "place_id" })
 })
 @EntityListeners(AuditingEntityListener.class)
 @SQLDelete(sql = "UPDATE tickets SET deleted_at = now() WHERE event_id = ? AND place_id = ?")
@@ -57,6 +56,8 @@ public class Ticket {
     private String currency; // ISO 4217
 
     private Instant reservedAt;
+
+    private Instant reservationExpiresAt;
 
     private Instant bookedAt;
 

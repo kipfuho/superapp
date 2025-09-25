@@ -2,6 +2,8 @@ package com.superapp.booking_service.messaging;
 
 import com.superapp.booking_service.messaging.contract.TicketCreation;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.KafkaFuture.BiConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,9 @@ public class KafkaConsumerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrap;
+
+    @Value("${app.groups.ticket-creation}")
+    private String ticketCreationGroupId;
 
     @Bean
     public ConsumerFactory<String, TicketCreation> ticketCreationConsumerFactory() {
@@ -60,8 +65,23 @@ public class KafkaConsumerConfig {
             @Value("${app.topics.dlt}") String dltTopic) {
         DeadLetterPublishingRecoverer recoverer = new org.springframework.kafka.listener.DeadLetterPublishingRecoverer(
                 dltTemplate, (record, ex) -> new org.apache.kafka.common.TopicPartition(dltTopic, record.partition()));
-        // retry 3 times with 1s backoff, then publish to DLT
-        return new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 3));
+
+        FixedBackOff backOff = new FixedBackOff(2000L, 3L); // 3 retries, 2s apart
+
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, backOff);
+
+        // Log every failure
+        BiConsumer<ConsumerRecord<?, ?>, Exception> logFunction = (record, ex) -> {
+            System.err.printf("Error processing record %s from topic %s%n",
+                    record.value(), record.topic());
+            ex.printStackTrace();
+        };
+
+        errorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
+            logFunction.accept(record, ex);
+        });
+
+        return errorHandler;
     }
 
     @Bean
@@ -69,10 +89,11 @@ public class KafkaConsumerConfig {
             CommonErrorHandler errorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, TicketCreation> factory = new ConcurrentKafkaListenerContainerFactory<String, TicketCreation>();
         factory.setConsumerFactory(ticketCreationConsumerFactory());
+        factory.getContainerProperties().setGroupId(ticketCreationGroupId);
         factory.setCommonErrorHandler(errorHandler);
         factory.getContainerProperties().setAckMode(
                 org.springframework.kafka.listener.ContainerProperties.AckMode.MANUAL_IMMEDIATE);
-        factory.setConcurrency(3); // tune per partition count
+        factory.setConcurrency(3);
         return factory;
     }
 }

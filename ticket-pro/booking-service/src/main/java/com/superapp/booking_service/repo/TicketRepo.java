@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.superapp.booking_service.domain.Ticket;
 
@@ -13,6 +14,7 @@ import io.lettuce.core.dynamic.annotation.Param;
 
 public interface TicketRepo extends JpaRepository<Ticket, UUID> {
 
+    @Transactional
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
             INSERT INTO tickets (event_id, place_id, status, price, currency)
