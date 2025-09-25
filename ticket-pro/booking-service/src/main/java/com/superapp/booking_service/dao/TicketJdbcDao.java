@@ -3,6 +3,7 @@ package com.superapp.booking_service.dao;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -52,5 +53,26 @@ public class TicketJdbcDao {
         });
 
         return Arrays.stream(counts).sum();
+    }
+
+    public List<UUID> tryReserveAllAndReturnIds(List<UUID> ids, Instant until) {
+        final String sql = """
+                UPDATE tickets
+                   SET status = 'RESERVED',
+                       reservation_expires_at = ?
+                 WHERE id = ANY (?)
+                   AND (
+                     status = 'OPEN'
+                     OR (status = 'RESERVED' AND reservation_expires_at < now())
+                   )
+                 RETURNING id
+                """;
+
+        return jdbc.query(con -> {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setObject(1, until);
+            ps.setArray(2, con.createArrayOf("uuid", ids.toArray()));
+            return ps;
+        }, (rs, rowNum) -> (UUID) rs.getObject("id"));
     }
 }

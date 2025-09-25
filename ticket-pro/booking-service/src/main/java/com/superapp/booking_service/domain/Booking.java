@@ -44,9 +44,13 @@ public class Booking {
     @GeneratedValue
     private UUID id;
 
-    private String customerId;
+    private UUID eventId;
 
-    private List<String> ticketIds;
+    private List<String> placeIds;
+
+    private List<UUID> ticketIds;
+
+    private String customerId;
 
     @Column(precision = 12, scale = 2)
     private BigDecimal totalAmount;

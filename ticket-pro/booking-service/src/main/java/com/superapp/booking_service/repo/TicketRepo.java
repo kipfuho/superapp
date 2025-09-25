@@ -1,6 +1,8 @@
 package com.superapp.booking_service.repo;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +32,32 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
             @Param("placeId") String placeId,
             @Param("price") BigDecimal price,
             @Param("currency") String currency);
+
+    @Transactional
+    @Modifying
+    @Query("""
+                update Ticket t
+                   set t.status = 'RESERVED',
+                       t.reservation_expires_at = :time
+                 where t.id = :id
+                   and (
+                     t.status = 'OPEN'
+                     or (t.status = 'RESERVED' and t.reservation_expires_at < now() )
+                   )
+            """)
+    int tryReserve(@Param("id") UUID id, @Param("time") Instant reservationTime);
+
+    @Transactional
+    @Modifying
+    @Query("""
+                update Ticket t
+                   set t.status = 'RESERVED',
+                       t.reservationExpiresAt = :time
+                 where t.id in :ids
+                   and (
+                     t.status = 'OPEN'
+                     or (t.status = 'RESERVED' and t.reservationExpiresAt < CURRENT_TIMESTAMP)
+                   )
+            """)
+    int tryReserveAll(@Param("ids") List<UUID> ids, @Param("time") Instant reservationTime);
 }

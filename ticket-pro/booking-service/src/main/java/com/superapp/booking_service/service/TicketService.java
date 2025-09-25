@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.superapp.booking_service.dao.TicketJdbcDao;
 import com.superapp.booking_service.messaging.contract.TicketCreation;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class TicketService {
     private final TicketJdbcDao dao;
 
+    @Transactional
     public void createOrSyncTickets(TicketCreation payload) {
         List<String> placeIds = SeatUtils.expandGroupedPlaceIds(payload.groupedPlaceIds());
         PricingRule rule = payload.pricingRule();
