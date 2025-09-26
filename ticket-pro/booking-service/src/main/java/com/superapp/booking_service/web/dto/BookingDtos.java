@@ -13,7 +13,7 @@ public class BookingDtos {
 
     }
 
-    public record GetBookingPaymentQrReq(@NotNull @NotBlank String reserveToken) {
+    public record GetBookingPaymentQrReq(@NotNull @NotBlank String reserveToken, @NotNull @NotBlank String partnerId) {
 
     }
 

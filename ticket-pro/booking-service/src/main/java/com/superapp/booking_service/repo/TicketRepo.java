@@ -39,11 +39,11 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
     @Query("""
                 update Ticket t
                    set t.status = 'RESERVED',
-                       t.reservation_expires_at = :time
+                       t.reservationExpiresAt = :time
                  where t.id = :id
                    and (
                      t.status = 'OPEN'
-                     or (t.status = 'RESERVED' and t.reservation_expires_at < now() )
+                     or (t.status = 'RESERVED' and t.reservationExpiresAt < CURRENT_TIMESTAMP )
                    )
             """)
     int tryReserve(@Param("id") UUID id, @Param("time") Instant reservationTime);

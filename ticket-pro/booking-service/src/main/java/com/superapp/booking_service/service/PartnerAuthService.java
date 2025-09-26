@@ -38,6 +38,7 @@ public class PartnerAuthService {
 
     public boolean validatePartnerRequest(String partnerId, Map<String, String> fields, String checkSum) {
         Partner partner = repo.findById(partnerId).orElseThrow(() -> new IllegalStateException("Partner not found: "));
+        // simple webhook request authentication
         String[] checksumFields = partner.getPartnerChecksumFormat().split("\\|");
         String dataString = java.util.Arrays.stream(checksumFields)
                 .map(fields::get)

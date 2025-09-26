@@ -1,8 +1,7 @@
 package com.superapp.booking_service.messaging;
 
 import com.superapp.booking_service.messaging.contract.TicketCreation;
-import com.superapp.booking_service.service.TicketService; // your domain logic
-import org.apache.kafka.clients.consumer.ConsumerRecord;
+import com.superapp.booking_service.service.TicketService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
@@ -22,7 +21,6 @@ public class TicketCreationConsumer {
     public void onMessage(
             TicketCreation payload,
             @Header(KafkaHeaders.RECEIVED_KEY) String key,
-            ConsumerRecord<String, TicketCreation> record,
             Acknowledgment ack) {
         try {
             ticketService.createOrSyncTickets(payload);

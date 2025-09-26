@@ -111,6 +111,7 @@ public class BookingService {
         if (booking.getReservationExpiresAt().isBefore(Instant.now())) {
             throw new IllegalStateException("Reservation expired");
         }
+        // TODO: create qr gen factory for partner and return
         return "QRCODE";
     }
 }
