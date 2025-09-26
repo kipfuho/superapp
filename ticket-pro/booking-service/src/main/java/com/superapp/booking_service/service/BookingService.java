@@ -1,6 +1,7 @@
 package com.superapp.booking_service.service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class BookingService {
     private final BookingRepo repo;
     private final TicketRepo ticketRepo;
     private final TicketJdbcDao ticketDao;
+    private final ReserveTokenService reserveTokenService;
 
     @Transactional
     public Booking createBooking(UUID ticketId, String customerId) {
@@ -46,6 +48,8 @@ public class BookingService {
         booking.setTotalAmount(ticket.getPrice());
         booking.setCurrency(ticket.getCurrency());
 
+        String reserveToken = reserveTokenService.issue(booking.getId(), customerId, Duration.ofMinutes(9));
+        booking.setReserveToken(reserveToken);
         return repo.save(booking);
     }
 
@@ -82,11 +86,31 @@ public class BookingService {
         booking.setCustomerId(customerId);
         booking.setTotalAmount(totalAmount);
         booking.setCurrency(currency);
+        booking.setReservationExpiresAt(reservationEndTime);
 
+        String reserveToken = reserveTokenService.issue(booking.getId(), customerId, Duration.ofMinutes(9));
+        booking.setReserveToken(reserveToken);
         return repo.save(booking);
     }
 
+    public void revokeBookingReserveToken(UUID bookingId, String token) {
+        reserveTokenService.revokeByBookingId(bookingId, token);
+    }
+
     public String getBookingPaymentQr(UUID bookingId, GetBookingPaymentQrReq req) {
+        UUID reservedBookingId = reserveTokenService.resolveBookingId(req.reserveToken())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired token"));
+
+        if (bookingId != reservedBookingId) {
+            throw new IllegalStateException("Token doesn't match booking");
+        }
+
+        Booking booking = repo.findById(bookingId)
+                .orElseThrow(() -> new IllegalStateException("Booking not found"));
+
+        if (booking.getReservationExpiresAt().isBefore(Instant.now())) {
+            throw new IllegalStateException("Reservation expired");
+        }
         return "QRCODE";
     }
 }

@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.superapp.booking_service.domain.Booking;
 import com.superapp.booking_service.service.BookingService;
@@ -14,6 +15,7 @@ import com.superapp.booking_service.web.mapper.BookingMapper;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +36,12 @@ public class BookingController {
 
         Booking b = bookingService.createBooking(req.ticketIds(), req.customerId());
         return bookingMapper.toBookingRes(b);
+    }
+
+    @GetMapping("/{bookingId}/revoke")
+    public String getBookingPaymentQr(@PathVariable UUID bookingId, @RequestParam("reserveToken") String token) {
+        bookingService.revokeBookingReserveToken(bookingId, token);
+        return "ok";
     }
 
     @PostMapping("/{bookingId}/qr")

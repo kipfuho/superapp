@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class BookingDtos {
@@ -12,13 +13,13 @@ public class BookingDtos {
 
     }
 
-    public record GetBookingPaymentQrReq() {
+    public record GetBookingPaymentQrReq(@NotNull @NotBlank String reserveToken) {
 
     }
 
     // === Response ===
     public record BookingRes(UUID id, UUID eventId, List<String> placeIds, List<UUID> ticketIds, String status,
-            BigDecimal totalAmount, String currency, String paymentMethod, Instant paymentAt) {
+            BigDecimal totalAmount, String currency, String paymentMethod, Instant paymentAt, String reserveToken) {
 
     }
 }

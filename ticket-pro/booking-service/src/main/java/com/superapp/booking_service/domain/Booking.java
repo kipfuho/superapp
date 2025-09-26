@@ -52,6 +52,10 @@ public class Booking {
 
     private String customerId;
 
+    private String reserveToken;
+
+    private Instant reservationExpiresAt;
+
     @Column(precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
