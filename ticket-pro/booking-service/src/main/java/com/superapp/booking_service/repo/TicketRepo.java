@@ -3,6 +3,7 @@ package com.superapp.booking_service.repo;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -60,4 +61,6 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
                    )
             """)
     int tryReserveAll(@Param("ids") List<UUID> ids, @Param("time") Instant reservationTime);
+
+    Optional<Ticket> findByIdAndEventId(UUID ticketId, UUID eventId);
 }

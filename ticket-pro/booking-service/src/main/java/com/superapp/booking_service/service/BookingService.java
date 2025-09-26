@@ -14,6 +14,7 @@ import com.superapp.booking_service.domain.Booking;
 import com.superapp.booking_service.domain.Ticket;
 import com.superapp.booking_service.repo.BookingRepo;
 import com.superapp.booking_service.repo.TicketRepo;
+import com.superapp.booking_service.web.dto.BookingDtos.GetBookingPaymentQrReq;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class BookingService {
         }
 
         Ticket ticket = ticketRepo.findById(ticketId)
-                .orElseThrow(() -> new IllegalStateException("Ticket disappeared: " + ticketId));
+                .orElseThrow(() -> new IllegalStateException("Ticket not found: " + ticketId));
 
         Booking booking = new Booking();
         booking.setTicketIds(List.of(ticket.getId()));
@@ -83,5 +84,9 @@ public class BookingService {
         booking.setCurrency(currency);
 
         return repo.save(booking);
+    }
+
+    public String getBookingPaymentQr(UUID bookingId, GetBookingPaymentQrReq req) {
+        return "QRCODE";
     }
 }
