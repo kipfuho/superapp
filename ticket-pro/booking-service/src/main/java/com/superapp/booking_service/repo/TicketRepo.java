@@ -9,11 +9,10 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.superapp.booking_service.domain.Ticket;
-
-import io.lettuce.core.dynamic.annotation.Param;
 
 public interface TicketRepo extends JpaRepository<Ticket, UUID> {
 
@@ -63,4 +62,6 @@ public interface TicketRepo extends JpaRepository<Ticket, UUID> {
     int tryReserveAll(@Param("ids") List<UUID> ids, @Param("time") Instant reservationTime);
 
     Optional<Ticket> findByIdAndEventId(UUID ticketId, UUID eventId);
+
+    List<Ticket> findByEventId(UUID eventId);
 }

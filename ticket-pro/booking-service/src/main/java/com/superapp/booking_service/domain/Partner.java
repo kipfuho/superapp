@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "partners")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE bookings SET deleted_at = now() WHERE event_id = ? AND place_id = ?")
+@SQLDelete(sql = "UPDATE bookings SET deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @Data
 @NoArgsConstructor

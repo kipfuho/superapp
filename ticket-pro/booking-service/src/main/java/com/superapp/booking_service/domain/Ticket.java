@@ -20,7 +20,7 @@ import lombok.*;
         @UniqueConstraint(name = "uq_tickets_event_place", columnNames = { "event_id", "place_id" })
 })
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE tickets SET deleted_at = now() WHERE event_id = ? AND place_id = ?")
+@SQLDelete(sql = "UPDATE tickets SET deleted_at = now() WHERE id = ?")
 @SQLRestriction("deleted_at IS NULL")
 @Data
 @NoArgsConstructor

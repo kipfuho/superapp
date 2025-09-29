@@ -48,6 +48,7 @@ public class BookingService {
         booking.setTotalAmount(ticket.getPrice());
         booking.setCurrency(ticket.getCurrency());
 
+        booking = repo.save(booking);
         String reserveToken = reserveTokenService.issue(booking.getId(), customerId, Duration.ofMinutes(9));
         booking.setReserveToken(reserveToken);
         return repo.save(booking);
@@ -88,6 +89,7 @@ public class BookingService {
         booking.setCurrency(currency);
         booking.setReservationExpiresAt(reservationEndTime);
 
+        booking = repo.save(booking);
         String reserveToken = reserveTokenService.issue(booking.getId(), customerId, Duration.ofMinutes(9));
         booking.setReserveToken(reserveToken);
         return repo.save(booking);
@@ -113,5 +115,9 @@ public class BookingService {
         }
         // TODO: create qr gen factory for partner and return
         return "QRCODE";
+    }
+
+    public List<Booking> getBookingsByCustomer(String customerId) {
+        return repo.findByCustomerId(customerId);
     }
 }

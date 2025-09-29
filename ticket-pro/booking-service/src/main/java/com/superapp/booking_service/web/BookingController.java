@@ -1,10 +1,11 @@
 package com.superapp.booking_service.web;
 
+import java.util.List;
 import java.util.UUID;
 
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.superapp.booking_service.domain.Booking;
 import com.superapp.booking_service.service.BookingService;
@@ -20,15 +21,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Controller
+@RestController
 @RequestMapping("/booking")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;
     private final BookingMapper bookingMapper;
 
-    @PostMapping("/{eventId}")
-    public BookingRes booking(@PathVariable UUID eventId, @RequestBody ReserveBookingReq req) {
+    @GetMapping("/{customerId}")
+    public List<BookingRes> getBookingsByCustomer(@PathVariable String customerId) {
+        List<Booking> bookings = bookingService.getBookingsByCustomer(customerId);
+        return bookings.stream().map(bookingMapper::toBookingRes).toList();
+    }
+
+    @PostMapping("/")
+    public BookingRes booking(@RequestBody ReserveBookingReq req) {
         if (req.ticketIds().size() == 1) {
             Booking b = bookingService.createBooking(req.ticketIds().get(0), req.customerId());
             return bookingMapper.toBookingRes(b);

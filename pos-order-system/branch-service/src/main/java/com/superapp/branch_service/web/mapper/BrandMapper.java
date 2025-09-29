@@ -1,5 +1,6 @@
 package com.superapp.branch_service.web.mapper;
 
+import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
@@ -7,6 +8,7 @@ import com.superapp.branch_service.domain.Brand;
 import com.superapp.branch_service.web.dto.BrandDtos.CreateBrandReq;
 import com.superapp.branch_service.web.dto.BrandDtos.UpdateBrandReq;
 
+@Mapper(componentModel = "spring")
 public interface BrandMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
