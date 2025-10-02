@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.superapp.booking_service.domain.Booking.PaymentMethod;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -14,6 +16,10 @@ public class BookingDtos {
     }
 
     public record GetBookingPaymentQrReq(@NotNull @NotBlank String reserveToken, @NotNull @NotBlank String partnerId) {
+
+    }
+
+    public record PayBookingReq(@NotNull @NotBlank PaymentMethod paymentMethod) {
 
     }
 

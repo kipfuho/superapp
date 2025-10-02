@@ -16,6 +16,7 @@ import com.superapp.booking_service.domain.Ticket;
 import com.superapp.booking_service.repo.BookingRepo;
 import com.superapp.booking_service.repo.TicketRepo;
 import com.superapp.booking_service.web.dto.BookingDtos.GetBookingPaymentQrReq;
+import com.superapp.booking_service.web.dto.BookingDtos.PayBookingReq;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -119,5 +120,14 @@ public class BookingService {
 
     public List<Booking> getBookingsByCustomer(String customerId) {
         return repo.findByCustomerId(customerId);
+    }
+
+    public Booking paymentBooking(UUID bookingId, PayBookingReq req) {
+        Booking booking = repo.findById(bookingId)
+                .orElseThrow(() -> new IllegalStateException("Booking not found"));
+
+        booking.setPaymentMethod(req.paymentMethod());
+        booking.setPaymentAt(Instant.now());
+        return booking;
     }
 }

@@ -11,6 +11,7 @@ import com.superapp.booking_service.domain.Booking;
 import com.superapp.booking_service.service.BookingService;
 import com.superapp.booking_service.web.dto.BookingDtos.BookingRes;
 import com.superapp.booking_service.web.dto.BookingDtos.GetBookingPaymentQrReq;
+import com.superapp.booking_service.web.dto.BookingDtos.PayBookingReq;
 import com.superapp.booking_service.web.dto.BookingDtos.ReserveBookingReq;
 import com.superapp.booking_service.web.mapper.BookingMapper;
 
@@ -34,7 +35,7 @@ public class BookingController {
         return bookings.stream().map(bookingMapper::toBookingRes).toList();
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public BookingRes booking(@RequestBody ReserveBookingReq req) {
         if (req.ticketIds().size() == 1) {
             Booking b = bookingService.createBooking(req.ticketIds().get(0), req.customerId());
@@ -54,5 +55,11 @@ public class BookingController {
     @PostMapping("/{bookingId}/qr")
     public String getBookingPaymentQr(@PathVariable UUID bookingId, @RequestBody GetBookingPaymentQrReq req) {
         return bookingService.getBookingPaymentQr(bookingId, req);
+    }
+
+    @PostMapping("/{bookingId}/payment-confirm")
+    public BookingRes payBooking(@PathVariable UUID bookingId, @RequestBody PayBookingReq req) {
+        Booking b = bookingService.paymentBooking(bookingId, req);
+        return bookingMapper.toBookingRes(b);
     }
 }

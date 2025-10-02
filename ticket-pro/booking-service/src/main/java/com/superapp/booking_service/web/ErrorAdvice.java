@@ -40,7 +40,7 @@ public class ErrorAdvice {
                 "field", "",
                 "violationMessage", ex.getMessage() != null ? ex.getMessage() : "Resource not found"));
 
-        return responseBody(url, "Not Found", errors, ex, HttpStatus.NOT_FOUND);
+        return responseBody(url, "Not Found", errors, ex);
     }
 
     @ExceptionHandler(Exception.class)
@@ -54,11 +54,12 @@ public class ErrorAdvice {
                 "field", "",
                 "violationMessage", ex.getMessage() != null ? ex.getMessage() : "Unexpected error"));
 
-        return responseBody(url, "Internal Server Error", errors, ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        return responseBody(url, "Internal Server Error", errors, ex);
     }
 
     // ===== MVC: @RequestBody @Valid errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
             HttpServletRequest request) {
         String url = (request != null) ? request.getRequestURL().toString() : null;
@@ -69,12 +70,13 @@ public class ErrorAdvice {
                         "violationMessage", fe.getDefaultMessage()))
                 .toList();
 
-        return responseBody(url, "Validation Errors", errors, ex, HttpStatus.BAD_REQUEST);
+        return responseBody(url, "Validation Errors", errors, ex);
     }
 
     // ===== Both MVC & WebFlux: Constraint violations on @Validated method params,
     // @PathVariable, etc.
     @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleConstraintViolation(ConstraintViolationException ex,
             HttpServletRequest request) {
         String url = (request != null) ? request.getRequestURL().toString() : null;
@@ -90,20 +92,31 @@ public class ErrorAdvice {
                 })
                 .toList();
 
-        return responseBody(url, "Validation Errors", errors, ex, HttpStatus.BAD_REQUEST);
+        return responseBody(url, "Validation Errors", errors, ex);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, Object> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
+        String url = (request != null) ? request.getRequestURL().toString() : null;
+
+        List<Map<String, Object>> errors = List.of(Map.of(
+                "class", ex.getClass().getSimpleName(),
+                "field", "",
+                "violationMessage", ex.getMessage() != null ? ex.getMessage() : "Unexpected error"));
+
+        return responseBody(url, "Conflict", errors, ex);
     }
 
     // ---- helpers
     private Map<String, Object> responseBody(String url, String title, List<Map<String, Object>> errors,
-            Exception ex,
-            HttpStatus status) {
+            Exception ex) {
         URI uri = url != null ? URI.create(url) : URI.create("http://unknown/");
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("host", uri.getHost() == null ? "unknown" : uri.getHost());
         body.put("resource", uri.getPath());
         body.put("title", title);
         body.put("errors", errors);
-        body.put("status", status.value());
         body.put("timestamp", Instant.now());
 
         // Remove stackTrace on prod

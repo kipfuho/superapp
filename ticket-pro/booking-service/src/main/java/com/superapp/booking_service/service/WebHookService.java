@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.superapp.booking_service.domain.Booking;
 import com.superapp.booking_service.domain.Booking.BookingStatus;
+import com.superapp.booking_service.domain.Booking.PaymentMethod;
 import com.superapp.booking_service.repo.BookingRepo;
 import com.superapp.booking_service.web.dto.WebHookDtos.PaymentCallBackReq;
 
@@ -31,7 +32,7 @@ public class WebHookService {
         }
 
         booking.setStatus(Booking.BookingStatus.COMPLETED);
-        booking.setPaymentMethod(partnerId);
+        booking.setPaymentMethod(PaymentMethod.valueOf(partnerId));
         booking.setPaymentAt(Instant.now());
         bookingRepo.save(booking);
     }

@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "bookings")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE bookings SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE bookings SET deleted_at = now(), version = version + 1 WHERE id = ? AND version = ?")
 @SQLRestriction("deleted_at IS NULL")
 @Data
 @NoArgsConstructor
@@ -38,6 +38,10 @@ public class Booking {
 
     public enum BookingStatus {
         INPROGRESS, COMPLETED, CANCELLED
+    }
+
+    public enum PaymentMethod {
+        CUSTOM, BANK_TRANSFER
     }
 
     @Id
@@ -67,7 +71,9 @@ public class Booking {
     @Builder.Default
     private BookingStatus status = BookingStatus.INPROGRESS;
 
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 50)
+    private PaymentMethod paymentMethod;
 
     private Instant paymentAt;
 

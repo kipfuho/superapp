@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "organizers")
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE organizers SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE organizers SET deleted_at = now(), version = version + 1 WHERE id = ? AND version = ?")
 @SQLRestriction("deleted_at IS NULL") // replaces @Where
 @Data
 @NoArgsConstructor

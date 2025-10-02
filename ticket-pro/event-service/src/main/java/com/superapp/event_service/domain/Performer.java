@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
         @Index(name = "idx_performer_slug", columnList = "slug", unique = true)
 })
 @EntityListeners(AuditingEntityListener.class)
-@SQLDelete(sql = "UPDATE performers SET deleted_at = now() WHERE id = ?")
+@SQLDelete(sql = "UPDATE performers SET deleted_at = now(), version = version + 1 WHERE id = ? AND version = ?")
 @SQLRestriction("deleted_at IS NULL") // replaces @Where
 @Data
 @NoArgsConstructor
